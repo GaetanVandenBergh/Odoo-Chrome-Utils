@@ -1,0 +1,20 @@
+{
+    "manifest_version": 3,
+    "name": "Odoo/PDF.js Style Override",
+    "version": "1.1",
+    "description": "Overrides a specific style tag in Odoo database.",
+    "content_scripts": [
+        {
+            "matches": ["https://*.odoo.com/*"],
+            "js": ["content.js"],
+            "all_frames": true,
+            "run_at": "document_end"
+        }
+    ],
+    "icons": {
+        "16": "icon.png",
+        "32": "icon.png",
+        "48": "icon.png",
+        "128": "icon.png"
+    }
+}
