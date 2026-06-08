@@ -1,0 +1,19 @@
+{
+    "manifest_version": 3,
+    "name": "Follow/Unfollow Button Restorer",
+    "version": "1.0",
+    "description": "Restores the Follow/Unfollow button on Odoo",
+    "content_scripts": [
+        {
+            "matches": ["https://*.odoo.com/*"],
+            "js": ["content.js"],
+            "run_at": "document_end"
+        }
+    ],
+    "icons": {
+        "16": "icon.png",
+        "32": "icon.png",
+        "48": "icon.png",
+        "128": "icon.png"
+    }
+}
