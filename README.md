@@ -9,9 +9,6 @@ A collection of Chrome extensions that improve the day-to-day experience of work
 ### [assignme-equipment-now](assignme-equipment-now/README.md) — [Chrome Web Store](https://chromewebstore.google.com/detail/assign-me-an-equipment/pljacdemappalpigdfdlgeedadlimjdm)
 Adds an **"Assign to me"** button on maintenance equipment form views. One click assigns you as the technician and sets today's date — no manual field editing required.
 
-### [document-preview-print](document-preview-print/README.md) — [Chrome Web Store](https://chromewebstore.google.com/detail/odoopdfjs-style-override/eihddfiamgafpkbghkpodlnklbcldhkn)
-Restores the **print buttons** in Odoo's embedded PDF.js viewer. Odoo hides these buttons by default; this extension overrides the stylesheet to make them visible and highlights them in goldenrod.
-
 ### [follow-unfollow](follow-unfollow/README.md) — [Chrome Web Store](https://chromewebstore.google.com/detail/followunfollow-button-res/gdlighppgedbmlmghejngdhckglmjell)
 Restores a dedicated **Follow / Unfollow toggle button** in the Odoo chatter. Shows your current follow state and lets you toggle it with a single click, without navigating through the followers dropdown.
 
@@ -39,3 +36,9 @@ To update an extension after making code changes, click the **refresh icon** on 
 
 ### [Joorney](https://chromewebstore.google.com/detail/joorney/mjbkdgpgjmmkmjbebpdhpcpoicbpjglb)
 A broader Odoo productivity extension published on the Chrome Web Store. It bundles a wide range of features including an "Assign Me a task" button, server action code tooltips, pinned messages, context menus, Runbot utilities (automatic opening, impersonation, admin/debug mode), theme auto-switching, visual effects (stars, ambient, awesome loading), and user badge display. A good complement to the focused extensions in this repo.
+
+## Outdated Extensions
+
+### [document-preview-print](document-preview-print/README.md)
+Fixed in Odoo standard: 17+ \
+Restores the **print buttons** in Odoo's embedded PDF.js viewer. Odoo hides these buttons by default; this extension overrides the stylesheet to make them visible and highlights them in goldenrod.
