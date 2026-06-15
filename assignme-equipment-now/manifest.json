@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "Assign Me an Equipment",
-    "version": "0.1",
+    "version": "0.2",
     "description": "Adds an 'Assign to me' button on Odoo maintenance equipment records.",
     "author": "Gaetan Vanden Bergh",
     "content_scripts": [

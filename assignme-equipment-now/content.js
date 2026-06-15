@@ -9,9 +9,10 @@ let current_url = null;
 const observer = new MutationObserver((mutations) => {
 	for (const mutation of mutations) {
 		// When chatter changes that means we have maybe switched records
-		if (!mutation.target.classList.contains("o-mail-Message-textContent"))
+		if (!mutation.target.classList.contains("o-mail-Message-textContent") && !mutation.target.classList.contains("o-mail-ActionList-button")) {
 			continue;
-		if (current_url === window.location.href) return;
+		}
+		if (current_url === window.location.href) continue;
 		current_url = window.location.href;
 		cleanUI();
 		if (isEquipmentFormViewReady()) {
