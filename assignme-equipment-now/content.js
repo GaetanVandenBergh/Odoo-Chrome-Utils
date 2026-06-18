@@ -6,27 +6,27 @@ const FAKE_DATA_CLASS = "fake_data";
 
 let current_url = null;
 
-const observer = new MutationObserver((mutations) => {
-	for (const mutation of mutations) {
-		// When chatter changes that means we have maybe switched records
-		if (!mutation.target.classList.contains("o-mail-Message-textContent") && !mutation.target.classList.contains("o-mail-ActionList-button")) {
-			continue;
-		}
-		if (current_url === window.location.href) continue;
-		current_url = window.location.href;
-		cleanUI();
-		if (isEquipmentFormViewReady()) {
+const observer = new MutationObserver(() => {
+	if (isEquipmentFormViewReady()) {
+		if (current_url !== window.location.href) {
+			current_url = window.location.href;
+			cleanUI();
 			addAssignMeButtonToDom();
 		}
-		return;
+	} else {
+		current_url = null;
+		cleanUI();
 	}
 });
 
 observer.observe(document.documentElement, { childList: true, subtree: true });
 
 function isEquipmentFormViewReady() {
+	const formView = document.querySelector(".o_form_view");
+	if (!formView) return false;
 	const technicianField = document.getElementById("technician_user_id_0");
-	return technicianField;
+	if (!technicianField) return false;
+	return true;
 }
 
 function addAssignMeButtonToDom() {
@@ -50,6 +50,7 @@ function addAssignMeButtonToDom() {
 		: ` (${equipmentID})`;
 	assignBtn.textContent = `Assign to me${prefix}`;
 	assignBtn.onclick = () => assignUserNow();
+	assignBtn.title = `Assign this equipment (ID: ${equipmentID}) to the currently logged-in user (ID: ${userID})\n${FAKE_DATA_TITLE}`;
 
 	const field = document.getElementById("technician_user_id_0");
 	if (field) {
@@ -81,8 +82,8 @@ function assignUserNow() {
 		if (success) {
 			console.log("Equipment assigned successfully", { equipmentID, userID });
 			cleanUI();
+			addAssignMeButtonToDom();
 			addUserIDToDom();
-			maybeScream();
 		} else {
 			alert("Failed to assign equipment. Please try again.");
 			console.error("Failed to assign equipment");
@@ -135,45 +136,46 @@ async function writeOdoo(model, recordID, dataWrite) {
 }
 
 function cleanUI() {
-	for (const btn of [...document.getElementsByName(BUTTON_ID)]) {
+	for (const btn of document.getElementsByName(BUTTON_ID)) {
 		btn.remove();
 	}
 	for (const el of document.querySelectorAll(`.${FAKE_DATA_CLASS}`)) {
-		el.style.backgroundColor = "";
-		el.style.border = "";
-		el.style.borderRadius = "";
-		el.title = "";
-		if (
-			el.tagName === "INPUT" &&
-			el.value.startsWith("_") &&
-			el.value.endsWith("_")
-		) {
-			el.value = "";
-		}
-		el.classList.remove(FAKE_DATA_CLASS);
+		el.remove();
 	}
+
+	getTechnicianElement()?.classList.toggle("d-none", false);
+	getAssignDateElement()?.classList.toggle("d-none", false);
 }
 
 function addUserIDToDom() {
-	const userName =
-		document
-			.querySelector(
-				".o_user_avatar ~ .oe_topbar_name, .oe_topbar_avatar ~ .oe_topbar_name, .o_user_menu .oe_topbar_name",
-			)
-			?.firstChild?.nodeValue?.trim() || "Technician";
+	const userSelector = ".o_user_avatar ~ .oe_topbar_name, .oe_topbar_avatar ~ .oe_topbar_name, .o_user_menu .oe_topbar_name"
+	const userName = document.querySelector(userSelector)?.firstChild?.nodeValue?.trim() || "Technician";
 
-	const userIDField = document.getElementById("technician_user_id_0");
+	const userIDField = getTechnicianElement();
 	if (userIDField) {
-		userIDField.value = `_${userName}_`;
-		addFakeStyle(userIDField);
+		const spanElement = document.createElement("span");
+		spanElement.textContent = ` (${userName})`;
+		userIDField.parentNode.insertBefore(spanElement, userIDField.nextSibling);
+		addFakeStyle(spanElement);
+		userIDField.classList.toggle("d-none", true);
 	}
 
-	const assignDateField = document.getElementById("assign_date_0");
+	const assignDateField = getAssignDateElement();
 	if (assignDateField) {
-		assignDateField.value = `_${new Date().toLocaleDateString()}_`;
-		assignDateField.innerText = `_${new Date().toLocaleDateString()}_`;
-		addFakeStyle(assignDateField);
+		const spanElement = document.createElement("span");
+		const today = new Date().toLocaleDateString();
+		spanElement.textContent = ` (${today})`;
+		assignDateField.parentNode.insertBefore(spanElement, assignDateField.nextSibling);
+		addFakeStyle(spanElement);
+		assignDateField.classList.toggle("d-none", true);
 	}
+}
+
+function getTechnicianElement() {
+	return document.getElementById("technician_user_id_0");
+}
+function getAssignDateElement() {
+	return document.getElementById("assign_date_0");
 }
 
 function addFakeStyle(element) {
