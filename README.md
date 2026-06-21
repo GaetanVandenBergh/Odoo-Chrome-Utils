@@ -12,6 +12,18 @@ Adds an **"Assign to me"** button on maintenance equipment form views. One click
 ### [follow-unfollow](follow-unfollow/README.md) — [Chrome Web Store](https://chromewebstore.google.com/detail/followunfollow-button-res/gdlighppgedbmlmghejngdhckglmjell)
 Restores a dedicated **Follow / Unfollow toggle button** in the Odoo chatter. Shows your current follow state and lets you toggle it with a single click, without navigating through the followers dropdown.
 
+### [track_from_task](track_from_task/README.md) — Chrome Web Store (coming soon)
+Adds a **"Create Track"** button to the `project.task` form that opens a pre-filled `event.track` creation dialog using values derived from the task.
+
+- Project → Event mapping: map `project_id` to a default `event_id`.
+- Task Tag → Event Tag mapping: map task tags to event tags when creating a track.
+- Duration mapping: map task tag to a suggested duration (supports half-hour steps).
+- Title regex rules: map title patterns to event tags.
+- Description skip rules: patterns that blank the description when matched.
+- Track-created tag: optionally add a configurable tag to the task when a track is created (also hides the button when present).
+
+Settings are available in the extension Options page.
+
 ---
 
 ## Installing an Extension
