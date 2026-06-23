@@ -9,7 +9,7 @@ async function loadDependencies(dependencies) {
             }
         }
     } catch (e) {
-        console.warn(e)
+        console.log(e)
         return null
     }
 
@@ -61,7 +61,6 @@ function getCurrentHostConfig(showAlert=false) {
 async function loadHostOptions() {
     return new Promise((resolve, _) => {
         const listener = (e) => {
-            console.log(e)
             if (e.data.type !== "HOSTS_RESPONSE") return
 
             window.removeEventListener("message", listener)
@@ -93,9 +92,7 @@ function getMappedTagIds(record, config) {
     const title = record.data.name || "";
     for (const [pattern, eventTag] of Object.entries(titleTags)) {
         try {
-            if (new RegExp(pattern).test(title)) {
-                tags.push(eventTag);
-            }
+            if (new RegExp(pattern).test(title)) tags.push(eventTag);
         } catch (e) {
             console.warn("Invalid title regex", pattern, e);
         }
@@ -104,9 +101,7 @@ function getMappedTagIds(record, config) {
     const taskTagMap = config[HostConfigKeys.taskTags] || {};
     for (const id of record.data.tag_ids.resIds || []) {
         const eventTag = taskTagMap[id];
-        if (eventTag) {
-            tags.push(eventTag);
-        }
+        if (eventTag) tags.push(eventTag);
     }
 
     return [...new Set(tags)].filter(Boolean);
@@ -117,9 +112,7 @@ function shouldSkipDescription(description, config) {
     const skipPatterns = config[HostConfigKeys.descriptionSkip] || [];
     for (const pattern of skipPatterns) {
         try {
-            if (new RegExp(pattern).test(String(description))) {
-                return true;
-            }
+            if (new RegExp(pattern).test(String(description))) return true;
         } catch (e) {
             console.warn("Invalid descriptionSkip regex", pattern, e);
         }
@@ -181,20 +174,10 @@ function patchProjectTaskFormController(FormController, { patch, onMounted, mark
             }
             const record = this.model.root
             const trackURL = `${window.location.origin}${window.location.pathname}/event.track/${result.resId}${window.location.search}`
+            const taskURL = `${window.location.origin}${window.location.pathname}/project.task/${record.resId}${window.location.search}`
 
-            const thread = this.mailStore["mail.thread"].insert({
-                model: "project.task",
-                id: this.model.root.resId,
-            });
-
-            message = await thread.post(
-                markup(`<p>Track created: <a href="${trackURL}">${record.data.name}</a></p>`),
-                {
-                    message_type: "comment",
-                    isNote: true,
-                },
-            );
-            await thread.messagePin(message)
+            this.sendLinkMessage("project.task", record.resId, markup(`<p>Track created: <a href="${trackURL}">${record.data.name}</a></p>`), true)
+            this.sendLinkMessage("event.track", result.resId, markup(`<p>Related Task: <a href="${taskURL}">${record.data.name}</a></p>`), true)
 
             const config = getCurrentHostConfig();
             const createdTagId = config[HostConfigKeys.trackCreatedTag];
@@ -206,7 +189,6 @@ function patchProjectTaskFormController(FormController, { patch, onMounted, mark
 
         async openNewTrackForm() {
             const record = this.model.root
-            console.log(record)
 
             const userIds = this.model.root.data.user_ids.resIds
             let speakerPartner, speakerBioName = ""
@@ -246,21 +228,37 @@ function patchProjectTaskFormController(FormController, { patch, onMounted, mark
                 this.onTrackCreated(r)
                 return this.env.services.action.doAction({ type: "ir.actions.act_window_close" });
             }}});
+        },
+
+        async sendLinkMessage(model, resId, message, pin=false)    {
+            thread = this.mailStore["mail.thread"].insert({
+                model: model,
+                id: resId,
+            });
+
+            message = await thread.post(
+                message,
+                {
+                    message_type: "comment",
+                    isNote: true,
+                },
+            );
+            if (pin) await thread.messagePin(message)
         }
     })
 }
 
-console.log("Odoo Chrome Utils: Loading content script...");
+console.log("OdooChromeUtils/TrackFromTask: Loading content script...");
 load(5);
 
 async function load(retry) {
     if (typeof odoo === 'undefined') return
+    if (!odoo.info) return  // No info means frontend
+
     await new Promise((resolve) => setTimeout(resolve, 1000));
     const root = odoo.__WOWL_DEBUG__ ? odoo.__WOWL_DEBUG__.root : null;
     if (!root) {
-        if (retry > 0) {
-            return load(retry-1)
-        }
+        if (retry > 0) return load(retry-1)
         console.log("No root")
         return;
     }
@@ -276,10 +274,7 @@ async function load(retry) {
         {from: "@web/core/orm_service", imports: ["x2ManyCommands"]},
         {from: "@project/views/project_task_form/project_task_form_controller", imports: ["ProjectTaskFormController"]},
     ])
-    if (!dependencies) {
-        console.warn("Fail to load dependencies")
-        return
-    }
+    if (!dependencies) return
     const { FormArchParser, ProjectTaskFormController } = dependencies
     patchView(FormArchParser.prototype, dependencies)
     patchProjectTaskFormController(ProjectTaskFormController, dependencies)
